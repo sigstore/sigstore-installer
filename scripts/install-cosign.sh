@@ -31,13 +31,13 @@ install_cosign() {
     return 0
   fi
 
-  bootstrap_version='v1.5.2'
-  bootstrap_linux_amd64_sha='080c0ba10674d2909fb3b4b867b102aefa021959edf2696c8cc1ba08e824bccb'
-  bootstrap_linux_arm_sha='052fc183f5f114984f2292ead3a3dea88806d5b8c96ae6570c538aa2ddcb66fc'
-  bootstrap_linux_arm64_sha='9b7551a871f14b4c278a7857c2cc7d9366b922ed9a4c73387f507ab25cfec463'
-  bootstrap_darwin_amd64_sha='991c3f961f901aec75a4068ac2c3046bd5ab36d00cba6ddbf231b5d0123c83bf'
-  bootstrap_darwin_arm64_sha='d6ceb52358b69e02ddc2194d47cf5587e8c4885aaa0b9dbb98f0902410adc2ae'
-  bootstrap_windows_amd64_sha='b3f2636db8179c2c0a7cace2531d7c5e7bf37a26aaef960f040bf063f06469c6'
+  bootstrap_version='v1.10.0'
+  bootstrap_linux_amd64_sha='1f50825bb207098a9dac23c342151e441dc09a593d7707c172abb11701ace40b'
+  bootstrap_linux_arm_sha='4cf4a1d7deb681b81ffd164926779d85edbdd70a224f3ce9eb9ca5477138f86b'
+  bootstrap_linux_arm64_sha='e3b42544310c0cb7483c35dce19a503e68e62b51df11ff341451ae1f418023ad'
+  bootstrap_darwin_amd64_sha='49cf390cbfbce2047f123a7793cf4a8cd0d32a6ba5d260fa0e3282ea2a663e28'
+  bootstrap_darwin_arm64_sha='6af4bfa11e3e7fcd5a2a3a1081a501acb75cc2bb7a3d2dc381ab1aaa06d11982'
+  bootstrap_windows_amd64_sha='26b3e2f529608017e320b11741ad7421ca5a77d4e98d976016c1d1fa4d37558b'
 
   trap "popd >/dev/null" return
 

@@ -2,7 +2,7 @@
 
 This action enables you to install the sigstore tools to be used in your pipeline.
 
-Currently it install the following tools:
+Currently it installs the following tools:
 
 1. [cosign](https://github.com/sigstore/cosign)
 2. [rekor-cli](https://github.com/sigstore/rekor)
@@ -21,9 +21,6 @@ Add the following entry to your Github workflow YAML file:
 
 ```yaml
 uses: sigstore/sigstore-installer@main
-with:
-  cosign-version: 'v1.5.2' # optional
-  rekor-cli-version: 'v0.5.0' # optional
 ```
 
 Example using a pinned version for cosign:
@@ -41,7 +38,7 @@ jobs:
       - name: Install Cosign
         uses: sigstore/sigstore-installer@main
         with:
-          cosign-version: 'v1.5.2'
+          cosign-version: 'v1.10.0'
       - name: Check install!
         run: cosign version
 ```
@@ -61,7 +58,7 @@ jobs:
       - name: Install Cosign
         uses: sigstore/sigstore-installer@main
         with:
-          rekor-cli-version: 'v0.4.0'
+          rekor-cli-version: 'v0.9.1'
       - name: Check install!
         run: rekor-cli version
 ```
@@ -101,9 +98,11 @@ jobs:
     name: Install Cosign via go install
     steps:
       - name: Install go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: '1.17.x'
+          go-version: 1.18
+          check-latest: true
+
       - name: Install Cosign
         uses: sigstore/sigstore-installer@main
         with:

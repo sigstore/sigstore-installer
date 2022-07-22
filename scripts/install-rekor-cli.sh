@@ -30,13 +30,13 @@ install_rekor() {
     exit 0
   fi
 
-  bootstrap_version='v0.5.0'
-  bootstrap_linux_amd64_sha='a55eba0b526be151ed4b83958d093e925e83c0cda8e15c6508e6d1d360735840'
-  bootstrap_linux_arm_sha='342e0794453cedc72ef92ebaa110b68514c8457c9fcd8fcd64f6b24ed1abba53'
-  bootstrap_linux_arm64_sha='e61850af805f5c12de92e10e90faaac178f1af200b7353f72d03b7fac8e32d8b'
-  bootstrap_darwin_amd64_sha='00621c4ea74347394f7ed5722847259b3dc10256c89a6a568fc1f478f181b83c'
-  bootstrap_darwin_arm64_sha='057def5bf18338fc4d85e889195315d2a815aa5784deb173b13cc41d4150ac15'
-  bootstrap_windows_amd64_sha='af2342f28d9aba6b9c443c9cdc217357d7fd318fac57389e96dd62be0b34005a'
+  default_version='v0.9.1'
+  default_linux_amd64_sha='1bebeaf3d8fbd16841a6f9cf86312085b4eb331075d17978af2fd221ce361eb3'
+  default_linux_arm_sha='1fe49488ff6057c5d06f0fe8a383e5193319d108bf3d7955c58490ab1e74570b'
+  default_linux_arm64_sha='d0d3c513baa89ab256cacebe6d33e5e765ecc493bc672aa213d5a87679a1aa1d'
+  default_darwin_amd64_sha='3d06cf86d726f625f94d16613b671b0e280c349662bf50e2a7a262d09d993849'
+  default_darwin_arm64_sha='10924422c9e48a35fba089039612c96bcb38b5e7799191b2e1119fd57a94fddf'
+  default_windows_amd64_sha='f2f698d9210e85cd8264a45faec9afcb7907dd02614bdde96a5004bd5c1816e0'
 
   trap "popd >/dev/null" EXIT
 
@@ -46,20 +46,20 @@ install_rekor() {
     Linux)
       case $ARCH in
         X64)
-          bootstrap_filename='rekor-cli-linux-amd64'
-          bootstrap_sha=${bootstrap_linux_amd64_sha}
+          default_filename='rekor-cli-linux-amd64'
+          default_sha=${default_linux_amd64_sha}
           desired_rekor_cli_filename='rekor-cli-linux-amd64'
           ;;
 
         ARM)
-          bootstrap_filename='rekor-cli-linux-arm'
-          bootstrap_sha=${bootstrap_linux_arm_sha}
+          default_filename='rekor-cli-linux-arm'
+          default_sha=${default_linux_arm_sha}
           desired_rekor_cli_filename='rekor-cli-linux-arm'
           ;;
 
         ARM64)
-          bootstrap_filename='rekor-cli-linux-arm64'
-          bootstrap_sha=${bootstrap_linux_arm64_sha}
+          default_filename='rekor-cli-linux-arm64'
+          default_sha=${default_linux_arm64_sha}
           desired_rekor_cli_filename='rekor-cli-linux-amd64'
           ;;
 
@@ -73,14 +73,14 @@ install_rekor() {
     macOS)
       case $ARCH in
         X64)
-          bootstrap_filename='rekor-cli-darwin-amd64'
-          bootstrap_sha=${bootstrap_darwin_amd64_sha}
+          default_filename='rekor-cli-darwin-amd64'
+          default_sha=${default_darwin_amd64_sha}
           desired_rekor_cli_filename='rekor-cli-darwin-amd64'
           ;;
 
         ARM64)
-          bootstrap_filename='rekor-cli-darwin-arm64'
-          bootstrap_sha=${bootstrap_darwin_arm64_sha}
+          default_filename='rekor-cli-darwin-arm64'
+          default_sha=${default_darwin_arm64_sha}
           desired_rekor_cli_filename='rekor-cli-darwin-arm64'
           ;;
 
@@ -94,8 +94,8 @@ install_rekor() {
     Windows)
       case $ARCH in
         X64)
-          bootstrap_filename='rekor-cli-windows-amd64.exe'
-          bootstrap_sha=${bootstrap_windows_amd64_sha}
+          default_filename='rekor-cli-windows-amd64.exe'
+          default_sha=${default_windows_amd64_sha}
           desired_rekor_cli_filename='rekor-cli-windows-amd64.exe'
           ;;
         *)
@@ -110,19 +110,20 @@ install_rekor() {
       ;;
   esac
 
-  expected_bootstrap_version_digest=${bootstrap_sha}
-  log_info "Downloading bootstrap version '${bootstrap_version}' of rekor-cli to verify version to be installed...\n      https://github.com/sigstore/rekor/releases/download/${bootstrap_version}/${bootstrap_filename}"
-  curl -sL https://github.com/sigstore/rekor/releases/download/${bootstrap_version}/${bootstrap_filename} -o rekor-cli
-  shaBootstrap=$(shaprog rekor-cli);
-  if [[ $shaBootstrap != "${expected_bootstrap_version_digest}" ]]; then
+  expected_default_version_digest=${default_sha}
+  log_info "Downloading default version '${default_version}' of rekor-cli to verify version to be installed...\n      https://github.com/sigstore/rekor/releases/download/${default_version}/${default_filename}"
+  curl -sL https://github.com/sigstore/rekor/releases/download/${default_version}/${default_filename} -o rekor-cli
+  shadefault=$(shaprog rekor-cli);
+  if [[ $shadefault != "${expected_default_version_digest}" ]]; then
     log_error "Unable to validate rekor-cli version: '$REKOR_VERSION'"
     exit 1
   fi
   chmod +x rekor-cli
 
-  # If the bootstrap and specified `cosign` releases are the same, we're done.
-  if [[ $REKOR_VERSION == "${bootstrap_version}" ]]; then
-    log_info "bootstrap version successfully verified and matches requested version so nothing else to do"
+  # If the default and specified `rekor-cli` releases are the same, we're done.
+  if [[ $REKOR_VERSION == "${default_version}" ]]; then
+    COSIGN_EXPERIMENTAL=1 cosign verify-blob --signature https://github.com/sigstore/rekor/releases/download/"$REKOR_VERSION"/${desired_rekor_cli_filename}-keyless.sig rekor-cli
+    log_info "default version successfully verified and matches requested version so nothing else to do"
     exit 0
   fi
 
@@ -130,22 +131,19 @@ install_rekor() {
   if [[ $REKOR_VERSION =~ $semver ]]; then
     log_info "Custom rekor-cli version '$REKOR_VERSION' requested"
   else
-    log_error "Unable to validate requested cosign version: '$REKOR_VERSION'"
+    log_error "Unable to validate requested rekor-cli version: '$REKOR_VERSION'"
     exit 1
   fi
 
-  # Download custom cosign
+  # Download custom rekor-cli
   log_info "Downloading platform-specific version '$REKOR_VERSION' of rekor-cli...\n      https://github.com/sigstore/rekor/releases/download/$REKOR_VERSION/${desired_rekor_cli_filename}"
   curl -sL https://github.com/sigstore/rekor/releases/download/"$REKOR_VERSION"/${desired_rekor_cli_filename} -o rekor-cli_"$REKOR_VERSION"
-  shaCustom=$(shaprog rekor-cli_"$REKOR_VERSION");
 
-  # same hash means it is the same release
-  if [[ $shaCustom != "$shaBootstrap" ]]; then
-    log_info "Using bootstrap cosign to verify signature of desired cosign version"
-    COSIGN_EXPERIMENTAL=1 cosign verify-blob --signature https://github.com/sigstore/rekor/releases/download/"$REKOR_VERSION"/${desired_rekor_cli_filename}-keyless.sig rekor-cli_"$REKOR_VERSION"
+  log_info "Using default cosign to verify signature of desired cosign version"
+  COSIGN_EXPERIMENTAL=1 cosign verify-blob --signature https://github.com/sigstore/rekor/releases/download/"$REKOR_VERSION"/${desired_rekor_cli_filename}-keyless.sig rekor-cli_"$REKOR_VERSION"
 
-    mv rekor-cli_"$REKOR_VERSION" rekor-cli
-    chmod +x rekor-cli
-    log_info "Installation complete!"
-  fi
+  mv rekor-cli_"$REKOR_VERSION" rekor-cli
+  chmod +x rekor-cli
+  log_info "Installation complete!"
+  exit 0
 }

@@ -27,9 +27,29 @@ jobs:
     - name: Install sigstore gang
       uses: ./
     - name: Check cosign install!
-      run: cosign version
+      run: |
+        cosign version
+        COSIGN_VERSION_OUTPUT=$(cosign version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$COSIGN_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '1.10.0' ]]; then
+          echo 'should be 1.10.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check rekor-cli install!
-      run: rekor-cli version
+      run: |
+        rekor-cli version
+        REKOR_VERSION_OUTPUT=$(rekor-cli version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$REKOR_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '0.9.1' ]]; then
+          echo 'should be 0.9.1'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check root directory
       run: |
         if [[ $(git diff --stat) != '' ]]; then
@@ -62,9 +82,19 @@ jobs:
     - name: Install sigstore gang
       uses: ./
       with:
-        cosign-version: 'v0.5.0'
-    - name: Check install!
-      run: cosign version
+        cosign-version: 'v1.8.0'
+    - name: Check cosign install!
+      run: |
+        cosign version
+        COSIGN_VERSION_OUTPUT=$(cosign version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$COSIGN_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '1.8.0' ]]; then
+          echo 'should be 1.8.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check root directory
       run: |
         if [[ $(git diff --stat) != '' ]]; then
@@ -97,9 +127,19 @@ jobs:
     - name: Install sigstore gang
       uses: ./
       with:
-        rekor-cli-version: 'v0.4.0'
-    - name: Check install!
-      run: rekor-cli version
+        rekor-cli-version: 'v0.9.0'
+    - name: Check rekor-cli install!
+      run: |
+        rekor-cli version
+        REKOR_VERSION_OUTPUT=$(rekor-cli version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$REKOR_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '0.9.0' ]]; then
+          echo 'should be 0.9.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
     - name: Check root directory
       run: |
         if [[ $(git diff --stat) != '' ]]; then
