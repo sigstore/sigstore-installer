@@ -1,0 +1,201 @@
+name: test-sigstore
+
+on:
+  pull_request:
+
+jobs:
+  test_sigstore_action:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+
+    name: Install
+    steps:
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+    - name: Install sigstore gang
+      uses: ./
+    - name: Check cosign install!
+      run: |
+        cosign version
+        COSIGN_VERSION_OUTPUT=$(cosign version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$COSIGN_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '1.10.1' ]]; then
+          echo 'should be 1.10.1'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+    - name: Check rekor-cli install!
+      run: |
+        rekor-cli version
+        REKOR_VERSION_OUTPUT=$(rekor-cli version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$REKOR_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '0.10.0' ]]; then
+          echo 'should be 0.10.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+
+  test_sigstore_action_cosign_custom:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+    name: Install Custom Cosign and test presence in path
+    steps:
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+    - name: Install sigstore gang
+      uses: ./
+      with:
+        cosign-version: 'v1.8.0'
+    - name: Check cosign install!
+      run: |
+        cosign version
+        COSIGN_VERSION_OUTPUT=$(cosign version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$COSIGN_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '1.8.0' ]]; then
+          echo 'should be 1.8.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+
+  test_sigstore_action_rekor_cli_custom:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+    name: Install Custom Rekor and test presence in path
+    steps:
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+    - name: Install sigstore gang
+      uses: ./
+      with:
+        rekor-cli-version: 'v0.9.0'
+    - name: Check rekor-cli install!
+      run: |
+        rekor-cli version
+        REKOR_VERSION_OUTPUT=$(rekor-cli version 2>&1 /dev/null)
+        ACTUAL_VERSION=$(echo "$REKOR_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
+        if [[ $ACTUAL_VERSION != '0.9.0' ]]; then
+          echo 'should be 0.9.0'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+    - name: Check root directory
+      run: |
+        if [[ $(git diff --stat) != '' ]]; then
+          echo 'should be clean'
+          exit 1
+        else
+          exit 0
+        fi
+      shell: bash
+
+  test_sigstore_action_cosign_wrong:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+    name: Try to install a wrong Cosign
+    steps:
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+    - name: Install sigstore gang
+      uses: ./
+      with:
+        cosign-version: 'honk'
+      continue-on-error: true
+
+  test_sigstore_action_rekor_cli_wrong:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+    name: Try to install a wrong Cosign
+    steps:
+    - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
+    - name: Install sigstore gang
+      uses: ./
+      with:
+        rekor-cli-version: 'honk'
+      continue-on-error: true

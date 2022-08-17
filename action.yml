@@ -1,0 +1,51 @@
+name: sigstore-installer
+author: sigstore
+description: 'Installs sigstore tools and includes it in your path'
+branding:
+  icon: 'package'
+  color: 'blue'
+
+# This is pinned to the last major release, we have to bump it for each action version.
+inputs:
+  install-dir:
+    description: 'Where to install the cosign binary'
+    required: false
+    default: '${HOME}/.sigstore'
+  rekor-cli-version:
+    description: 'Which rekor-cli version to install'
+    required: false
+    default: 'v0.10.0'
+  cosign-version:
+    description: 'Which cosign version to install'
+    required: false
+    default: 'v1.10.1'
+  use-sudo:
+    description: 'set to true if install-dir location requires sudo privs'
+    required: false
+    default: 'false'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install cosign
+      uses: sigstore/cosign-installer@b3413d484cc23cf8778c3d2aa361568d4eb54679 # v2.5.1
+      with:
+        cosign-release: ${{ inputs.cosign-version }}
+        install-dir: ${{ inputs.install-dir }}
+        use-sudo: ${{ inputs.use-sudo }}
+
+    - shell: bash
+      run: $GITHUB_ACTION_PATH/scripts/install.sh
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        OS: ${{ runner.os }}
+        ARCH: ${{ runner.arch }}
+        REKOR_VERSION: ${{ inputs.rekor-cli-version }}
+
+    - if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+      run:  echo "${{ inputs.install-dir }}" >> $GITHUB_PATH
+      shell: bash
+
+    - if: ${{ runner.os == 'Windows' }}
+      run:  echo "${{ inputs.install-dir }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: pwsh
