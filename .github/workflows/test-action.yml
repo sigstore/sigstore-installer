@@ -31,8 +31,8 @@ jobs:
         cosign version
         COSIGN_VERSION_OUTPUT=$(cosign version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$COSIGN_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
-        if [[ $ACTUAL_VERSION != '1.10.0' ]]; then
-          echo 'should be 1.10.0'
+        if [[ $ACTUAL_VERSION != '1.10.1' ]]; then
+          echo 'should be 1.10.1'
           exit 1
         else
           exit 0
@@ -43,8 +43,8 @@ jobs:
         rekor-cli version
         REKOR_VERSION_OUTPUT=$(rekor-cli version 2>&1 /dev/null)
         ACTUAL_VERSION=$(echo "$REKOR_VERSION_OUTPUT" | grep GitVersion | cut -d 'v' -f2)
-        if [[ $ACTUAL_VERSION != '0.9.1' ]]; then
-          echo 'should be 0.9.1'
+        if [[ $ACTUAL_VERSION != '0.10.0' ]]; then
+          echo 'should be 0.10.0'
           exit 1
         else
           exit 0
@@ -121,7 +121,7 @@ jobs:
       repository-projects: none
       security-events: none
       statuses: none
-    name: Install Custom Cosign and test presence in path
+    name: Install Custom Rekor and test presence in path
     steps:
     - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # v2.4.0
     - name: Install sigstore gang

@@ -20,18 +20,11 @@ set -o pipefail
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 # shellcheck source=../scripts/utils.sh
 source "${REPO_ROOT}/scripts/utils.sh"
-# shellcheck source=../scripts/install-cosign.sh
-source "${REPO_ROOT}/scripts/install-cosign.sh"
 # shellcheck source=../scripts/install-rekor-cli.sh
 source "${REPO_ROOT}/scripts/install-rekor-cli.sh"
 
 dir="$(eval echo "$INSTALL_DIR")"
 mkdir -p "$dir"
-
-if ! install_cosign; then
-  log_error "failed to install cosign"
-  exit 1
-fi
 
 if ! install_rekor; then
   log_error "failed to install rekor-cli"
